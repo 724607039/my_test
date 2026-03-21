@@ -1,0 +1,26 @@
+{
+  "name": "code-auditor",
+  "version": "1.0.0",
+  "description": "全局代码审查工具，用于审查Vue3项目的代码效果问题",
+  "main": "lib/index.js",
+  "bin": {
+    "code-auditor": "bin/code-auditor.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "code",
+    "audit",
+    "lint",
+    "vue3",
+    "performance"
+  ],
+  "author": "",
+  "license": "MIT",
+  "files": [
+    "bin",
+    "lib",
+    "README.md"
+  ]
+}
