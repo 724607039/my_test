@@ -1,8 +1,4 @@
 #!/bin/sh
-# 确保在正确的项目目录中执行命令
-PROJECT_DIR="$(dirname "$0")/.."
-cd "$PROJECT_DIR"
+. "$(dirname "$0")/_/husky.sh"
 
-# 直接使用 eslint 命令检查文件
-"$PROJECT_DIR/node_modules/.bin/eslint" . --ext .vue,.js,.ts --fix
-
+npx lint-staged

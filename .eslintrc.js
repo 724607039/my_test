@@ -50,7 +50,7 @@ module.exports = {
 
     // 样式相关
     'vue/attributes-order': 'warn',
-    'vue/html-self-closing': 'warn',
+    'vue/html-self-closing': 'off',
     'vue/max-attributes-per-line': 'off',
 
     // 可维护性
