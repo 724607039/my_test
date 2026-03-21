@@ -6,15 +6,57 @@ import PizZip from 'pizzip';
 import { saveAs } from 'file-saver';
 
 /**
+ * 组件类型定义
+ */
+type TextComponent = {
+  type: 'text';
+  props: {
+    content: string;
+    fontSize: number;
+    fontWeight: 'normal' | 'bold';
+    color: string;
+  };
+};
+
+type ImageComponent = {
+  type: 'image';
+  props: {
+    src: string;
+    alt: string;
+    width: number;
+    height: number;
+  };
+};
+
+type TableComponent = {
+  type: 'table';
+  props: {
+    data: string[][];
+    headers?: string[];
+  };
+};
+
+type CanvasItem = TextComponent | ImageComponent | TableComponent;
+
+/**
+ * 图片类型定义
+ */
+type ImageItem = {
+  id: string;
+  name: string;
+  src: string;
+};
+
+/**
  * 生成Word文件
  * @param canvasItems 画布组件
  */
-export function generateWordDocument(canvasItems: any[]) {
+export function generateWordDocument(canvasItems: CanvasItem[]) {
   // 创建一个空的Word文档模板
   const zip = new PizZip();
 
   // 处理图片
-  const images = [];
+  const images: ImageItem[] = [];
   canvasItems.forEach((item, index) => {
     if (item.type === 'image' && item.props.src) {
       const imageData = item.props.src;
@@ -46,7 +88,7 @@ export function generateWordDocument(canvasItems: any[]) {
 /**
  * 生成文档XML
  */
-function generateDocumentXml(canvasItems: any[], images: any[]) {
+function generateDocumentXml(canvasItems: CanvasItem[], images: ImageItem[]) {
   let bodyContent = '';
 
   canvasItems.forEach((item) => {
@@ -204,7 +246,7 @@ function generateTableXml(data: string[][], headers?: string[]) {
 /**
  * 生成关系XML
  */
-function generateRelsXml(images: any[]) {
+function generateRelsXml(images: ImageItem[]) {
   let relsContent = `<?xml version="1.0" encoding="UTF-8"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
   <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>

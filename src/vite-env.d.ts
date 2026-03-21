@@ -5,7 +5,7 @@ declare module '*.vue' {
   const component: DefineComponent<
     Record<string, never>,
     Record<string, never>,
-    any
+    unknown
   >;
   export default component;
 }

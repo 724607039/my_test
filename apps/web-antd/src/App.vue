@@ -226,10 +226,28 @@ import TableComponent from './components/TableComponent.vue';
 import { generateWordDocument } from './utils/wordGenerator';
 
 // 组件类型定义
+type TextProps = {
+  content: string;
+  fontSize: number;
+  fontWeight: 'normal' | 'bold';
+  color: string;
+};
+
+type ImageProps = {
+  src: string;
+  alt: string;
+  width: number;
+  height: number;
+};
+
+type TableProps = {
+  data: string[][];
+};
+
 interface Component {
   id: string;
   type: 'text' | 'image' | 'table';
-  props: any;
+  props: TextProps | ImageProps | TableProps;
 }
 
 // 组件列表
@@ -326,9 +344,15 @@ const getComponentName = (type: string) => {
 };
 
 // 更新组件属性
-const updateComponentProps = (index: number, propName: string, value: any) => {
+const updateComponentProps = (
+  index: number,
+  propName: string,
+  value: unknown
+) => {
   if (components.value[index]) {
-    components.value[index].props[propName] = value;
+    // 使用类型断言来安全地更新属性
+    const component = components.value[index];
+    (component.props as Record<string, unknown>)[propName] = value;
   }
 };
 
@@ -343,7 +367,6 @@ const generateWord = () => {
     generateWordDocument(components.value);
     ElMessage.success('Word文档生成成功！');
   } catch (error) {
-    console.error('生成Word文档失败:', error);
     ElMessage.error('生成Word文档失败，请重试');
   }
 };
