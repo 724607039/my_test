@@ -93,10 +93,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed } from 'vue';
-import TextComponent from './components/TextComponent.vue';
-import ImageComponent from './components/ImageComponent.vue';
-import TableComponent from './components/TableComponent.vue';
+import { ref } from 'vue';
 import { generateWordFile } from './utils/wordGenerator.js';
 
 // 组件库

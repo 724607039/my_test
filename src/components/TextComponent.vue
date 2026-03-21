@@ -7,7 +7,7 @@
 <script setup>
 import { defineProps } from 'vue';
 
-const props = defineProps({
+defineProps({
   content: {
     type: String,
     default: '文本内容',

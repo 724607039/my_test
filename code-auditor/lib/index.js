@@ -2,8 +2,8 @@
  * 代码审查工具核心功能
  */
 
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 
 // 默认配置
 const defaultConfig = {
@@ -216,9 +216,8 @@ function checkConsoleUsage(content, filePath) {
 // 检查debugger使用
 function checkDebuggerUsage(content, filePath) {
   const debuggerRegex = /debugger;/g;
-  let match;
 
-  while ((match = debuggerRegex.exec(content)) !== null) {
+  while (debuggerRegex.exec(content) !== null) {
     console.error(`[ERROR] ${filePath}: Debugger statement found`);
     errorCount++;
   }
@@ -227,9 +226,8 @@ function checkDebuggerUsage(content, filePath) {
 // 检查eval使用
 function checkEvalUsage(content, filePath) {
   const evalRegex = /eval\(/g;
-  let match;
 
-  while ((match = evalRegex.exec(content)) !== null) {
+  while (evalRegex.exec(content) !== null) {
     console.error(`[ERROR] ${filePath}: Eval usage found`);
     errorCount++;
   }
@@ -238,9 +236,8 @@ function checkEvalUsage(content, filePath) {
 // 检查with使用
 function checkWithUsage(content, filePath) {
   const withRegex = /with\s*\(/g;
-  let match;
 
-  while ((match = withRegex.exec(content)) !== null) {
+  while (withRegex.exec(content) !== null) {
     console.error(`[ERROR] ${filePath}: With statement found`);
     errorCount++;
   }
@@ -262,9 +259,8 @@ function checkUselessConcat(content, filePath) {
 // 检查无用的return语句
 function checkUselessReturn(content, filePath) {
   const returnRegex = /return\s*;/g;
-  let match;
 
-  while ((match = returnRegex.exec(content)) !== null) {
+  while (returnRegex.exec(content) !== null) {
     console.warn(`[WARNING] ${filePath}: Useless return statement found`);
     warningCount++;
   }
@@ -401,9 +397,4 @@ function runAudit(options) {
 }
 
 // 导出模块
-module.exports = {
-  runAudit,
-  loadConfig,
-  scanDirectory,
-  analyzeFile,
-};
+export { runAudit, loadConfig, scanDirectory, analyzeFile };

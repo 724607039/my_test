@@ -1,5 +1,4 @@
 import PizZip from 'pizzip';
-import Docxtemplater from 'docxtemplater';
 import { saveAs } from 'file-saver';
 
 export function generateWordFile(canvasItems) {
@@ -28,7 +27,7 @@ export function generateWordFile(canvasItems) {
   zip.file('word/document.xml', generateDocumentXml(canvasItems, images));
   zip.file('word/_rels/document.xml.rels', generateRelsXml(images));
   zip.file('word/media/.rels', '');
-  zip.file('[Content_Types].xml', generateContentTypesXml(images));
+  zip.file('[Content_Types].xml', generateContentTypesXml());
   zip.file('_rels/.rels', generateRootRelsXml());
 
   // 生成Word文件
@@ -39,7 +38,7 @@ export function generateWordFile(canvasItems) {
 function generateDocumentXml(canvasItems, images) {
   let bodyContent = '';
 
-  canvasItems.forEach((item, index) => {
+  canvasItems.forEach((item) => {
     switch (item.type) {
       case 'TextComponent':
         bodyContent += `<w:p><w:r><w:t>${escapeXml(
@@ -178,7 +177,7 @@ function generateRelsXml(images) {
   return relsContent;
 }
 
-function generateContentTypesXml(images) {
+function generateContentTypesXml() {
   let contentTypes = `<?xml version="1.0" encoding="UTF-8"?>
 <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
   <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>

@@ -4,7 +4,7 @@
  * 代码审查工具命令行入口
  */
 
-const { runAudit } = require('../lib/index.js');
+import { runAudit } from '../lib/index.js';
 
 // 解析命令行参数
 const args = process.argv.slice(2);

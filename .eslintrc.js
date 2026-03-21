@@ -11,12 +11,13 @@ module.exports = {
     ecmaVersion: 2021,
     sourceType: 'module',
   },
-  plugins: ['vue', '@typescript-eslint', 'prettier'],
+  plugins: ['vue', '@typescript-eslint', 'prettier', 'unused-imports'],
   extends: [
     'eslint:recommended',
     'plugin:vue/vue3-recommended',
     'plugin:@typescript-eslint/recommended',
     'plugin:prettier/recommended',
+    'prettier',
   ],
   rules: {
     // 基础规则
@@ -31,7 +32,7 @@ module.exports = {
 
     // 性能相关
     'no-unused-vars': 'error',
-    'no-unused-imports': 'error',
+    'unused-imports/no-unused-imports': 'error',
     'no-console': 'warn',
     'no-debugger': 'warn',
 
@@ -44,10 +45,8 @@ module.exports = {
 
     // Vue相关
     'vue/no-unused-components': 'error',
-    'vue/no-unused-vars': 'error',
     'vue/no-duplicate-attributes': 'error',
     'vue/require-prop-types': 'warn',
-    'vue/require-default-prop': 'off',
 
     // 样式相关
     'vue/attributes-order': 'warn',
