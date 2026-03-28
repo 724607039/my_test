@@ -51,7 +51,23 @@
       </aside>
 
       <!-- 中间画布 -->
-      <main class="canvas" @drop="handleDrop" @dragover.prevent>
+      <main
+        class="canvas"
+        @dragover="handleDragOver"
+        @drop="handleDrop"
+        @dragleave="handleDragLeave"
+      >
+        <!-- 放置指示器 -->
+        <div v-if="dropIndicatorIndex !== null" class="drop-indicator" />
+
+        <!-- 放置区域 - 最开始 -->
+        <div
+          class="drop-zone"
+          :class="{ 'drop-zone-active': dropIndicatorIndex === 0 }"
+          @dragover.prevent="handleDragOverZone(0)"
+          @drop.prevent="handleDropOnZone(0)"
+        />
+
         <div
           v-for="(component, index) in components"
           :key="component.id"
@@ -102,6 +118,14 @@
               "
             />
           </div>
+
+          <!-- 放置区域 - 每个组件之后 -->
+          <div
+            class="drop-zone"
+            :class="{ 'drop-zone-active': dropIndicatorIndex === index + 1 }"
+            @dragover.prevent="handleDragOverZone(index + 1)"
+            @drop.prevent="handleDropOnZone(index + 1)"
+          />
         </div>
         <div v-if="components.length === 0" class="canvas-placeholder">
           <el-icon><Folder /></el-icon>
@@ -256,11 +280,89 @@ const components = ref<Component[]>([]);
 // 选中的组件
 const selectedComponent = ref<Component | null>(null);
 
+// 拖拽放置位置指示器
+const dropIndicatorIndex = ref<number | null>(null);
+
 // 拖拽开始事件
 const handleDragStart = (event: DragEvent, componentType: string) => {
   if (event.dataTransfer) {
     event.dataTransfer.setData('componentType', componentType);
   }
+};
+
+// 拖拽悬停在画布上
+const handleDragOver = (event: DragEvent) => {
+  event.preventDefault();
+};
+
+// 拖拽离开画布
+const handleDragLeave = () => {
+  dropIndicatorIndex.value = null;
+};
+
+// 悬停在特定放置区域
+const handleDragOverZone = (index: number) => {
+  dropIndicatorIndex.value = index;
+};
+
+// 在特定位置放下组件
+const handleDropOnZone = (index: number) => {
+  event?.preventDefault();
+  if (event?.dataTransfer) {
+    const componentType = event.dataTransfer.getData('componentType');
+    addComponentAtIndex(componentType, index);
+  }
+  dropIndicatorIndex.value = null;
+};
+
+// 添加组件到指定位置
+const addComponentAtIndex = (componentType: string, index: number) => {
+  let newComponent: Component;
+  const id = Date.now().toString();
+
+  switch (componentType) {
+    case 'text':
+      newComponent = {
+        id,
+        type: 'text',
+        props: {
+          content: '文本内容',
+          fontSize: 16,
+          fontWeight: 'normal' as 'normal' | 'bold',
+          color: '#000000',
+        },
+      };
+      break;
+    case 'image':
+      newComponent = {
+        id,
+        type: 'image',
+        props: {
+          src: '',
+          alt: '图片',
+          width: 300,
+          height: 200,
+        },
+      };
+      break;
+    case 'table':
+      newComponent = {
+        id,
+        type: 'table',
+        props: {
+          data: [
+            ['单元格1', '单元格2'],
+            ['单元格3', '单元格4'],
+          ],
+        },
+      };
+      break;
+    default:
+      return;
+  }
+
+  components.value.splice(index, 0, newComponent);
+  selectedComponent.value = newComponent;
 };
 
 // 拖拽结束事件
@@ -378,116 +480,182 @@ const printContent = () => {
 </script>
 
 <style scoped>
+/* 全局样式优化 */
 .app {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: #f5f5f5;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
+/* 头部样式 */
 .app-header {
-  background-color: #fff;
-  padding: 0 20px;
-  height: 60px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  padding: 0 24px;
+  height: 64px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .app-header h1 {
-  font-size: 20px;
+  font-size: 22px;
   margin: 0;
-  color: #1890ff;
+  font-weight: 600;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
+/* 主要内容区域 */
 .app-content {
   flex: 1;
   display: flex;
-  padding: 20px;
-  gap: 20px;
+  padding: 24px;
+  gap: 24px;
 }
 
+/* 左侧组件库 */
 .component-library {
-  width: 200px;
-  background-color: #fff;
-  border-radius: 4px;
-  padding: 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  width: 220px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .component-library h2 {
   font-size: 16px;
-  margin: 0 0 16px 0;
+  margin: 0 0 20px 0;
   color: #333;
+  font-weight: 600;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #667eea;
 }
 
 .component-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .component-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px;
-  background-color: #f9f9f9;
-  border-radius: 4px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
+  padding: 14px 16px;
+  border-radius: 10px;
   cursor: move;
   transition: all 0.3s ease;
+  font-size: 14px;
+  font-weight: 500;
+  color: #555;
+  border: 1px solid transparent;
 }
 
 .component-item:hover {
-  background-color: #e6f7ff;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
   transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
 }
 
+.component-item-icon {
+  margin-right: 8px;
+}
+
+/* 画布区域 */
 .canvas {
   flex: 1;
-  background-color: #fff;
-  border-radius: 4px;
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   min-height: 600px;
   position: relative;
 }
 
 .canvas-item {
-  background-color: #f9f9f9;
-  border: 1px solid #e8e8e8;
-  border-radius: 4px;
-  margin-bottom: 20px;
+  background: #fff;
+  border: 2px solid #e8e8e8;
+  border-radius: 12px;
+  margin-bottom: 0;
   transition: all 0.3s ease;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .canvas-item:hover {
-  border-color: #1890ff;
-  box-shadow: 0 2px 8px rgba(24, 144, 255, 0.15);
+  border-color: #667eea;
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.15);
+  transform: translateY(-2px);
 }
 
+.drop-zone {
+  height: 8px;
+  margin: 8px 0;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  background-color: transparent;
+}
+
+.drop-zone:hover,
+.drop-zone-active {
+  height: 48px;
+  background: linear-gradient(
+    135deg,
+    rgba(102, 126, 234, 0.1) 0%,
+    rgba(118, 75, 162, 0.1) 100%
+  );
+  border: 2px dashed #667eea;
+  border-radius: 8px;
+}
+
+.drop-indicator {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  pointer-events: none;
+  border-radius: 2px;
+}
+
+/* 组件头部 */
 .component-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 12px;
-  background-color: #f0f0f0;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   border-bottom: 1px solid #e8e8e8;
-  border-radius: 4px 4px 0 0;
 }
 
+.component-header span {
+  font-weight: 600;
+  color: #495057;
+  font-size: 14px;
+}
+
+/* 组件内容 */
 .component-content {
-  padding: 12px;
+  padding: 16px;
 }
 
+/* 画布占位符 */
 .canvas-placeholder {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 100%;
-  color: #ccc;
+  color: #adb5bd;
 }
 
 .canvas-placeholder p {
@@ -495,66 +663,171 @@ const printContent = () => {
   font-size: 16px;
 }
 
+/* 右侧属性面板 */
 .property-panel {
-  width: 300px;
-  background-color: #fff;
-  border-radius: 4px;
-  padding: 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  width: 320px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .property-panel h2 {
   font-size: 16px;
-  margin: 0 0 16px 0;
+  margin: 0 0 20px 0;
   color: #333;
+  font-weight: 600;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #667eea;
 }
 
 .property-placeholder {
   text-align: center;
-  color: #ccc;
-  padding: 40px 0;
+  color: #adb5bd;
+  padding: 60px 20px;
+  font-size: 14px;
+}
+
+.property-group h3 {
+  font-size: 14px;
+  margin: 16px 0 12px 0;
+  color: #667eea;
+  font-weight: 600;
 }
 
 .slider-value {
   margin-left: 12px;
   font-size: 14px;
-  color: #666;
+  color: #667eea;
+  font-weight: 600;
 }
 
 .table-data-display {
-  background-color: #f9f9f9;
-  padding: 12px;
-  border-radius: 4px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  padding: 16px;
+  border-radius: 10px;
 }
 
 .table-data-display p {
-  margin: 0 0 8px 0;
+  margin: 0 0 10px 0;
   font-size: 14px;
+  color: #495057;
 }
 
 .table-data-display p:last-child {
   margin-bottom: 0;
 }
 
-/* 打印样式 */
+/* 打印样式 - 1:1还原显示内容 */
 @media print {
+  @page {
+    size: A4 portrait;
+    margin: 20mm;
+  }
+
+  html,
+  body {
+    width: 210mm;
+    height: 297mm;
+    margin: 0;
+    padding: 0;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .app {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: #fff;
+  }
+
   .app-header,
   .component-library,
-  .property-panel {
-    display: none;
+  .property-panel,
+  .no-selection {
+    display: none !important;
   }
 
   .app-content {
+    display: block;
     padding: 0;
+    margin: 0;
+    width: 100%;
+    height: auto;
   }
 
   .canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    padding: 0;
+    margin: 0;
     box-shadow: none;
+    border: none;
     min-height: auto;
+    background-color: transparent;
   }
 
   .canvas-item {
+    display: block;
+    width: 100%;
+    height: auto;
+    margin-bottom: 10px;
     page-break-inside: avoid;
+    page-break-after: auto;
+    background-color: #f9f9f9;
+    border: 1px solid #e8e8e8;
+    border-radius: 4px;
+  }
+
+  .component-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background-color: #f0f0f0;
+    border-bottom: 1px solid #e8e8e8;
+    border-radius: 4px 4px 0 0;
+  }
+
+  .component-content {
+    padding: 12px;
+  }
+
+  .text-content,
+  .image-component,
+  .table-component {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .text-content p {
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .image-component img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .table-data-display {
+    background-color: #f9f9f9;
+    padding: 12px;
+    border-radius: 4px;
+  }
+
+  .table-data-display p {
+    margin: 0 0 8px 0;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .table-data-display p:last-child {
+    margin-bottom: 0;
   }
 }
 </style>
