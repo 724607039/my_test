@@ -2,7 +2,7 @@
   <div class="app">
     <!-- 顶部操作栏 -->
     <div class="toolbar">
-      <h1>低代码拖拽组件</h1>
+      <h1>低代码拖拽组件测试</h1>
       <div class="actions">
         <button @click="generateWord">生成Word</button>
         <button @click="print">打印</button>
